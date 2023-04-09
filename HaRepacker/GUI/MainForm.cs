@@ -42,6 +42,8 @@ namespace HaRepacker.GUI
 
         private MainPanel MainPanel = null;
 
+        private WzFile wzFile;
+        private List<WzFile> loadedWzFile = new List<WzFile>();
         /// <summary>
         /// Constructor
         /// </summary>
@@ -994,6 +996,7 @@ namespace HaRepacker.GUI
 
                     foreach (WzFile wzFile in loadedWzFiles) // add later, once everything is loaded to memory
                     {
+                        this.loadedWzFile.Add(wzFile);
                         AddLoadedWzObjectToMainPanel(wzFile, currentDispatcher);
                     }
                 }); // load complete
@@ -2230,6 +2233,22 @@ namespace HaRepacker.GUI
             runningThread = new Thread(new ParameterizedThreadStart(RunWzFilesExtraction));
             runningThread.Start((object)new object[] { dialog.FileNames, outPath, encryptionBox.SelectedIndex, serializer });
             new Thread(new ParameterizedThreadStart(ProgressBarThread)).Start(serializer);
+        }
+
+        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void testToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void helpToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+            Test test = new Test(this.loadedWzFile);
+            test.TestMethod();
         }
     }
 }

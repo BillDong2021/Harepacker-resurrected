@@ -628,5 +628,33 @@ namespace MapleLib.WzLib
         {
             ((WzDirectory)Parent).RemoveDirectory(this);
         }
+
+
+        public WzObject GetChild(string path)
+        {
+            WzObject wzObject = null;
+            try
+            {
+                wzObject = this;
+                string[] pathParts = path.Split('\\');  //"Map\\Map\\Map1\\102010000.img"
+                foreach (string str in pathParts)
+                {
+                    if (wzObject is WzDirectory directory)
+                    {
+                        wzObject = directory[str];
+                    }
+                    else if (wzObject is WzImage image)
+                    {
+                        wzObject = image[str];
+                    }
+                }
+
+            }
+            catch (Exception)
+            {
+            }
+
+            return wzObject;
+        }
     }
 }
