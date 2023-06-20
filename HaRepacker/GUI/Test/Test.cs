@@ -27,6 +27,9 @@ namespace HaRepacker.GUI
             this.loadedWzFile = loadedWzFile;
         }
         
+        /// <summary>
+        /// 点帮助启动，用之前首先按顺序打开map和mob的wz，然后点击帮助
+        /// </summary>
         public void TestMethod()
         {
             WzDirectory wzDirectory = loadedWzFile[0].WzDirectory;
