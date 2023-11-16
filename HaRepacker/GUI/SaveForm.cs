@@ -138,105 +138,113 @@ namespace HaRepacker.GUI
         /// <param name="e"></param>
         private void SaveButton_Click(object sender, EventArgs e)
         {
-            if (versionBox.Value < 0)
+            try
             {
-                Warning.Error(Properties.Resources.SaveVersionError);
-                return;
-            }
-
-            using (SaveFileDialog dialog = new SaveFileDialog()
-            {
-                Title = HaRepacker.Properties.Resources.SelectOutWz,
-                FileName = wzNode.Text,
-                Filter = string.Format("{0}|*.wz",
-                HaRepacker.Properties.Resources.WzFilter)
-            })
-            {
-                if (dialog.ShowDialog() != DialogResult.OK)
-                    return;
-
-                bool bSaveAs64BitWzFile = checkBox_64BitFile.Checked; // no version number
-                WzMapleVersion wzMapleVersionSelected = MainForm.GetWzMapleVersionByWzEncryptionBoxSelection(encryptionBox.SelectedIndex); // new encryption selected
-                if (this.IsRegularWzFile)
+                if (versionBox.Value < 0)
                 {
+                    Warning.Error(Properties.Resources.SaveVersionError);
+                    return;
+                }
 
-                    if (wzf.MapleVersion != wzMapleVersionSelected)
-                    {
-                        PrepareAllImgs(wzf.WzDirectory);
-                    }
-                    wzf.Version = (short)versionBox.Value;
-                    wzf.MapleVersion = wzMapleVersionSelected;
+                using (SaveFileDialog dialog = new SaveFileDialog()
+                {
+                    Title = HaRepacker.Properties.Resources.SelectOutWz,
+                    FileName = wzNode.Text,
+                    Filter = string.Format("{0}|*.wz",
+                    HaRepacker.Properties.Resources.WzFilter)
+                })
+                {
+                    if (dialog.ShowDialog() != DialogResult.OK)
+                        return;
 
-                    if (wzf.FilePath != null && wzf.FilePath.ToLower() == dialog.FileName.ToLower())
+                    bool bSaveAs64BitWzFile = checkBox_64BitFile.Checked; // no version number
+                    WzMapleVersion wzMapleVersionSelected = MainForm.GetWzMapleVersionByWzEncryptionBoxSelection(encryptionBox.SelectedIndex); // new encryption selected
+                    if (this.IsRegularWzFile)
                     {
-                        wzf.SaveToDisk(dialog.FileName + "$tmp", bSaveAs64BitWzFile, wzMapleVersionSelected);
-                        try
+
+                        if (wzf.MapleVersion != wzMapleVersionSelected)
                         {
-                            File.Delete(dialog.FileName);
-                            File.Move(dialog.FileName + "$tmp", dialog.FileName);
+                            PrepareAllImgs(wzf.WzDirectory);
                         }
-                        catch (IOException ex)
+                        wzf.Version = (short)versionBox.Value;
+                        wzf.MapleVersion = wzMapleVersionSelected;
+
+                        if (wzf.FilePath != null && wzf.FilePath.ToLower() == dialog.FileName.ToLower())
                         {
-                            MessageBox.Show("Handle error overwriting WZ file", HaRepacker.Properties.Resources.Error);
+                            wzf.SaveToDisk(dialog.FileName + "$tmp", bSaveAs64BitWzFile, wzMapleVersionSelected);
+                            try
+                            {
+                                File.Delete(dialog.FileName);
+                                File.Move(dialog.FileName + "$tmp", dialog.FileName);
+                            }
+                            catch (IOException ex)
+                            {
+                                MessageBox.Show("Handle error overwriting WZ file", HaRepacker.Properties.Resources.Error);
+                            }
+                        }
+                        else
+                        {
+                            wzf.SaveToDisk(dialog.FileName, bSaveAs64BitWzFile, wzMapleVersionSelected);
+                        }
+                        _mainPanel.MainForm.UnloadWzFile(wzf);
+
+                        // Reload the new file
+                        var loadedFiles = Program.WzFileManager.WzFileList;
+                        WzFile loadedWzFile = Program.WzFileManager.LoadWzFile(dialog.FileName, wzMapleVersionSelected);
+                        if (loadedWzFile != null)
+                        {
+                            _mainPanel.MainForm.AddLoadedWzObjectToMainPanel(loadedWzFile);
                         }
                     }
                     else
                     {
-                        wzf.SaveToDisk(dialog.FileName, bSaveAs64BitWzFile, wzMapleVersionSelected);
-                    }
-                    _mainPanel.MainForm.UnloadWzFile(wzf);
+                        byte[] WzIv = WzTool.GetIvByMapleVersion(wzMapleVersionSelected);
 
-                    // Reload the new file
-                    var loadedFiles = Program.WzFileManager.WzFileList;
-                    WzFile loadedWzFile = Program.WzFileManager.LoadWzFile(dialog.FileName, wzMapleVersionSelected);
-                    if (loadedWzFile != null)
-                    {
-                        _mainPanel.MainForm.AddLoadedWzObjectToMainPanel(loadedWzFile);
-                    }
-                }
-                else
-                {
-                    byte[] WzIv = WzTool.GetIvByMapleVersion(wzMapleVersionSelected);
+                        // Save file
+                        string tmpFilePath = dialog.FileName + ".tmp";
+                        string targetFilePath = dialog.FileName;
 
-                    // Save file
-                    string tmpFilePath = dialog.FileName + ".tmp";
-                    string targetFilePath = dialog.FileName;
-
-                    bool error_noAdminPriviledge = false;
-                    try
-                    {
-                        using (FileStream oldfs = File.Open(tmpFilePath, FileMode.OpenOrCreate))
-                        {
-                            using (WzBinaryWriter wzWriter = new WzBinaryWriter(oldfs, WzIv))
-                            {
-                                wzImg.SaveImage(wzWriter, true); // Write to temp folder
-                            }
-                        }
+                        bool error_noAdminPriviledge = false;
                         try
                         {
-                            File.Copy(tmpFilePath, targetFilePath, true);
-                            File.Delete(tmpFilePath);
+                            using (FileStream oldfs = File.Open(tmpFilePath, FileMode.OpenOrCreate))
+                            {
+                                using (WzBinaryWriter wzWriter = new WzBinaryWriter(oldfs, WzIv))
+                                {
+                                    wzImg.SaveImage(wzWriter, true); // Write to temp folder
+                                }
+                            }
+                            try
+                            {
+                                File.Copy(tmpFilePath, targetFilePath, true);
+                                File.Delete(tmpFilePath);
+                            }
+                            catch (Exception exp)
+                            {
+                                Debug.WriteLine(exp); // nvm, dont show to user
+                            }
+                            wzNode.DeleteWzNode(); // this is a WzImage, and cannot be unloaded by _mainPanel.MainForm.UnloadWzFile
                         }
-                        catch (Exception exp)
+                        catch (UnauthorizedAccessException)
                         {
-                            Debug.WriteLine(exp); // nvm, dont show to user
+                            error_noAdminPriviledge = true;
                         }
-                        wzNode.DeleteWzNode(); // this is a WzImage, and cannot be unloaded by _mainPanel.MainForm.UnloadWzFile
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        error_noAdminPriviledge = true;
-                    }
 
-                    // Reload the new file
-                    WzImage img = Program.WzFileManager.LoadDataWzHotfixFile(dialog.FileName, wzMapleVersionSelected);
-                    if (img == null || error_noAdminPriviledge)
-                    {
-                        MessageBox.Show(Properties.Resources.MainFileOpenFail, HaRepacker.Properties.Resources.Error);
+                        // Reload the new file
+                        WzImage img = Program.WzFileManager.LoadDataWzHotfixFile(dialog.FileName, wzMapleVersionSelected);
+                        if (img == null || error_noAdminPriviledge)
+                        {
+                            MessageBox.Show(Properties.Resources.MainFileOpenFail, HaRepacker.Properties.Resources.Error);
+                        }
+                        _mainPanel.MainForm.AddLoadedWzObjectToMainPanel(img);
                     }
-                    _mainPanel.MainForm.AddLoadedWzObjectToMainPanel(img);
                 }
             }
+            catch (Exception ee)
+            {
+                Console.WriteLine(ee);
+            }
+            Console.WriteLine( "Save Finish!");
             Close();
         }
 

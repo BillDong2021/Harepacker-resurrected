@@ -167,6 +167,8 @@ namespace MapleLib.WzLib.WzProperties
                 writer.Write((byte)0);
             }
 
+            Console.WriteLine( $"name={this.Name}, type={this.PropertyType}, path={this.FullPath}" );
+
             // Image info
             writer.WriteCompressedInt(PngProperty.Width);
             writer.WriteCompressedInt(PngProperty.Height);
@@ -175,7 +177,8 @@ namespace MapleLib.WzLib.WzProperties
             writer.Write((Int32)0);
 
             // Write image
-            byte[] bytes = PngProperty.GetCompressedBytes(false);
+            //byte[] bytes = PngProperty.GetCompressedBytes(false);
+            byte[] bytes = new byte[1];
             writer.Write(bytes.Length + 1);
             writer.Write((byte)0); // header? see WzImageProperty.ParseExtendedProp "0x00"
             writer.Write(bytes);

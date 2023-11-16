@@ -446,11 +446,11 @@ namespace MapleLib.WzLib
                 }
 
                 WzSubProperty imgProp = new WzSubProperty();
-
+                Console.WriteLine($"Save Image START!  name={imgProp.Name} path={imgProp.FullPath}, count={WzProperties.Count}");
                 long startPos = writer.BaseStream.Position;
                 imgProp.AddPropertiesForWzImageDumping(WzProperties);
                 imgProp.WriteValue(writer);
-
+                Console.WriteLine( $"Save Image Finish!  name={imgProp.Name} path={imgProp.FullPath},, count={WzProperties.Count}");
                 writer.StringCache.Clear();
 
                 size = (int)(writer.BaseStream.Position - startPos);

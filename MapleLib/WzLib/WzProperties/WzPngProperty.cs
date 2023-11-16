@@ -449,10 +449,17 @@ namespace MapleLib.WzLib.WzProperties
                         // Read image into zlib
                         while (reader.BaseStream.Position < endOfPng)
                         {
+                            if (blocksize > 100)
+                            {
+                                break;
+                            }
                             blocksize = reader.ReadInt32();
                             for (int i = 0; i < blocksize; i++)
                             {
-                                dataStream.WriteByte((byte)(reader.ReadByte() ^ ParentImage.reader.WzKey[i]));
+                                if (ParentImage != null)
+                                {
+                                    dataStream.WriteByte((byte)(reader.ReadByte() ^ ParentImage.reader.WzKey[i]));
+                                }
                             }
                         }
                         dataStream.Position = 2;

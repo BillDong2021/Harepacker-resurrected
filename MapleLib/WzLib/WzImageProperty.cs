@@ -108,6 +108,34 @@ namespace MapleLib.WzLib
             }
         }
 
+        internal static void WritePropertyListWithoutCanvas(WzBinaryWriter writer, List<WzImageProperty> properties)
+        {
+            if (properties.Count == 1 && properties[0] is WzLuaProperty)
+            {
+                properties[0].WriteValue(writer);
+            }
+            else
+            {
+                writer.Write((ushort)0);
+                writer.WriteCompressedInt(properties.Count);
+                foreach (WzImageProperty imgProperty in properties)
+                {
+                    Console.WriteLine( $"%%% Property :   name={imgProperty.Name}, type={imgProperty.PropertyType}, value={imgProperty.WzValue}, path={imgProperty.FullPath}" );
+                    if (imgProperty.FullPath.Contains("6230601"))
+                    {
+                        Console.WriteLine();
+                    }
+                    //Console.WriteLine();
+                    writer.WriteStringValue(imgProperty.Name, 0x00, 0x01);
+                    if (imgProperty is WzExtended extended)
+                        WriteExtendedValue(writer, extended);
+                    else
+                        imgProperty.WriteValue(writer);
+                }
+            }
+        }
+
+        
         internal static void DumpPropertyList(StreamWriter writer, int level, List<WzImageProperty> properties)
         {
             foreach (WzImageProperty prop in properties)

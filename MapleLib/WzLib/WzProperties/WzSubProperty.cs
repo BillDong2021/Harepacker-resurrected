@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.*/
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -158,7 +159,8 @@ namespace MapleLib.WzLib.WzProperties
                     return img1.Name.CompareTo(img2.Name);  // (leave non canvas nodes at the very bottom, i.e "info")
             });
 
-            WzImageProperty.WritePropertyList(writer, properties);
+            //WzImageProperty.WritePropertyList(writer, properties);
+            WzImageProperty.WritePropertyListWithoutCanvas(writer, properties);
         }
 
         /// <summary>
