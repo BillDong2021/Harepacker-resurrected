@@ -386,8 +386,8 @@ namespace MapleLib.WzLib
                 // otherwise Item.wz (300MB) probably uses > 4GB
                 if (useCustomIv || !bIsWzUserKeyDefault) // when using custom IV, or changing IVs, all images have to be re-read and re-written..
                 {
-                    //GC.Collect(); // GC slows down writing of maps in HaCreator
-                    //GC.WaitForPendingFinalizers();
+                    GC.Collect(); // GC slows down writing of maps in HaCreator
+                    GC.WaitForPendingFinalizers();
                 }
 
                 //Debug.WriteLine("Writing image :" + img.FullPath);

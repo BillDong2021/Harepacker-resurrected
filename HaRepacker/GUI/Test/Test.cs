@@ -33,8 +33,8 @@ namespace HaRepacker.GUI
         public void TestMethod()
         {
             WzDirectory wzDirectory = loadedWzFile[0].WzDirectory;
-            WzObject wzObject = wzDirectory.GetChild("Map\\Map0\\000030000.img");
-            WzImage mapImage = (WzImage)wzObject;
+            //WzObject wzObject = wzDirectory.GetChild("Map\\Map0\\000030000.img");
+            //WzImage mapImage = (WzImage)wzObject;
 
             WzDirectory mobDirectory = loadedWzFile[1].WzDirectory;
             MapHelper.Main(wzDirectory, mobDirectory);

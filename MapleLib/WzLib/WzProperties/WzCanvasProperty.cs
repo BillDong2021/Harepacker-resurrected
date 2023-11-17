@@ -167,7 +167,6 @@ namespace MapleLib.WzLib.WzProperties
                 writer.Write((byte)0);
             }
 
-            Console.WriteLine( $"name={this.Name}, type={this.PropertyType}, path={this.FullPath}" );
 
             // Image info
             writer.WriteCompressedInt(PngProperty.Width);

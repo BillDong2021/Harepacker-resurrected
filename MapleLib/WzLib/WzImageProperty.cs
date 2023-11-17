@@ -120,11 +120,11 @@ namespace MapleLib.WzLib
                 writer.WriteCompressedInt(properties.Count);
                 foreach (WzImageProperty imgProperty in properties)
                 {
-                    Console.WriteLine( $"%%% Property :   name={imgProperty.Name}, type={imgProperty.PropertyType}, value={imgProperty.WzValue}, path={imgProperty.FullPath}" );
-                    if (imgProperty.FullPath.Contains("6230601"))
-                    {
-                        Console.WriteLine();
-                    }
+                    //Console.WriteLine( $"%%% Property :   name={imgProperty.Name}, type={imgProperty.PropertyType}, value={imgProperty.WzValue}, path={imgProperty.FullPath}" );
+                    //if (imgProperty.FullPath.Contains("6230601"))
+                    //{
+                    //    Console.WriteLine();
+                    //}
                     //Console.WriteLine();
                     writer.WriteStringValue(imgProperty.Name, 0x00, 0x01);
                     if (imgProperty is WzExtended extended)

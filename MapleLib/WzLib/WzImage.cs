@@ -446,7 +446,7 @@ namespace MapleLib.WzLib
                 }
 
                 WzSubProperty imgProp = new WzSubProperty();
-                Console.WriteLine($"Save Image START!  name={imgProp.Name} path={imgProp.FullPath}, count={WzProperties.Count}");
+                //Console.WriteLine($"Save Image START!  name={imgProp.Name} path={imgProp.FullPath}, count={WzProperties.Count}");
                 long startPos = writer.BaseStream.Position;
                 imgProp.AddPropertiesForWzImageDumping(WzProperties);
                 imgProp.WriteValue(writer);
